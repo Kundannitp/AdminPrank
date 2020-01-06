@@ -57,14 +57,32 @@ firebase.initializeApp(firebaseConfig);
 
 function writeUserData(req,res) {
     var regno=req.body.regno;
+    
+    var OtpString=Math.floor(Math.random() * (1000000 - 100000) + 100000);
+
     firebase.database().ref('otps/'+regno).set(
-        "kundan"
+        OtpString
     ,
         function (error) {
         });
+    
+    //SendEmailToUser(OtpString, req.body.email);
+
+
     responsemsg = "Otp sent to " + req.body.email;
     res.redirect("/");
 }
+
+
+/*****************************Send Email To User**********************/
+
+function SendEmailToUser(OtpString,email){
+
+
+
+}
+
+/*****************************Send Email TO user Ends******************/
 
 const userSchema = new mongoose.Schema({
     email: String,
@@ -114,7 +132,7 @@ app.get("/login",function(req,res){
 
 app.get("/logout", function (req, res) {
     req.logout();
-    res.redirect("/");
+    res.redirect("/login");
 });
 
 app.post("/login", function (req, res) {

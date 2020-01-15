@@ -1,4 +1,4 @@
-
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
@@ -7,6 +7,7 @@ const session = require('express-session');
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const findOrCreate = require('mongoose-findorcreate');
+const nodemailer=require('nodemailer');
 
 // Firebase App (the core Firebase SDK) is always required and
 // must be listed before other Firebase SDKs
@@ -58,7 +59,8 @@ firebase.initializeApp(firebaseConfig);
 function writeUserData(req,res) {
     var regno=req.body.regno;
     
-    var OtpString=Math.floor(Math.random() * (1000000 - 100000) + 100000);
+    var OtpNumber=Math.floor(Math.random() * (1000000 - 100000) + 100000);
+    var OtpString="PRANKS"+OtpNumber;
 
     firebase.database().ref('otps/'+regno).set(
         OtpString
@@ -66,7 +68,7 @@ function writeUserData(req,res) {
         function (error) {
         });
     
-    //SendEmailToUser(OtpString, req.body.email);
+    SendEmailToUser(OtpString, req.body.email);
 
 
     responsemsg = "Otp sent to " + req.body.email;
@@ -78,6 +80,35 @@ function writeUserData(req,res) {
 
 function SendEmailToUser(OtpString,email){
 
+    //Step 1
+let transporter=nodemailer.createTransport(
+    {
+        service:'gmail',
+        auth:{
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD
+        }
+    }
+);
+
+//Step 2
+let mailOptions={
+    from:'bytpphyte@gmail.com',
+    to: email,
+    cc:'bytpphyte@gmail.com',
+    subject:'Regarding Registration as assured doctor in PRANKS',
+    text: 'Use this OTP at the time of Registration '+OtpString
+}
+
+//Step 3
+transporter.sendMail(mailOptions,function(err,data){
+    if(err){
+        console.log("Error Occurs"+err);
+    }
+    else{
+        console.log("Email Sent!!!");
+    }
+});
 
 
 }
